@@ -1,0 +1,10 @@
+:~  title+'Trackur'
+    info+'Track your weight, fasts, and other daily health routines'
+    color+0xef.f0f4
+    image+''
+    glob-ames+[~bidryl-piltex-finned-palmer 0v0]
+    base+'trackur'
+    version+[0 0 1]
+    website+''
+    license+'MIT'
+==
