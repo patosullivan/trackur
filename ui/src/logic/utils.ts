@@ -5,7 +5,7 @@ import {
   Docket,
   Treaty,
   unixToDa,
-} from '@urbit/api/dist/api';
+} from '@urbit/api';
 import { formatUv } from '@urbit/aura';
 import anyAscii from 'any-ascii';
 import { format, differenceInDays, endOfToday } from 'date-fns';

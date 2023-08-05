@@ -3,17 +3,14 @@ import Layout from '@/components/Layout/Layout';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import { useCurrentFast, useFasts } from '@/state/fasts';
+import { useCurrentFast, useFastMutation, useFasts } from '@/state/fasts';
 import { format } from 'date-fns';
 import classNames from 'classnames';
 
-// a form that allows a user to set a start time for a fast and a duration
-// start date should default to now
-
 export default function Fast() {
-  const { fasts } = useFasts();
+  const { fasts, loading } = useFasts();
   const currentFast = useCurrentFast();
-  // the difference between the current time and the start time
+  const { mutate } = useFastMutation();
   const [currentDuration, setCurrentDuration] = useState(0);
   const currentDurationHours = Math.floor(currentDuration);
   const currentDurationMinutes = Math.floor(
@@ -25,7 +22,6 @@ export default function Fast() {
       const start = new Date(currentFast.start);
       const now = new Date();
       const diff = now.getTime() - start.getTime();
-      // diff in hours
       const diffInHours = diff / 1000 / 60 / 60;
 
       setCurrentDuration(diffInHours);
@@ -69,9 +65,22 @@ export default function Fast() {
             <div className="flex items-center space-x-2">
               <span className="font-bold">Current Duration:</span>
               <span>{currentDurationHours} hours,</span>
-              <span>{currentDurationMinutes} minutes</span>
+              <span>{currentDurationMinutes} minutes,</span>
+              <span>
+                {Math.floor(
+                  (currentDuration / currentFast.expectedDuration) * 100
+                )}
+                % done
+              </span>
             </div>
-            <button className="button">End Fast</button>
+            <button
+              onClick={() =>
+                mutate({ id: currentFast.id, end: new Date().toISOString() })
+              }
+              className="button"
+            >
+              End Fast
+            </button>
           </div>
         ) : (
           <>
@@ -122,44 +131,49 @@ export default function Fast() {
           </h2>
 
           <div className="flex flex-col space-y-2">
-            {fasts.map((fast, i) => (
-              <div
-                className={classNames('flex flex-col space-y-2', {
-                  'border-t border-gray-300 pt-2 dark:border-gray-700': i > 0,
-                })}
-              >
-                <div className="flex items-center space-x-2">
-                  <span className="font-bold">Start:</span>
-                  <span>{format(new Date(fast.start), 'Pp')}</span>
+            {loading ? (
+              <span>Loading...</span>
+            ) : (
+              fasts.map((fast, i) => (
+                <div
+                  key={fast.id}
+                  className={classNames('flex flex-col space-y-2', {
+                    'border-t border-gray-300 pt-2 dark:border-gray-700': i > 0,
+                  })}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="font-bold">Start:</span>
+                    <span>{format(new Date(fast.start), 'Pp')}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-bold">Expected Duration:</span>
+                    <span>{fast.expectedDuration}</span>
+                  </div>
+                  {fast.end && fast.actualDuration && (
+                    <>
+                      <span className="font-bold">End:</span>
+                      <span>{format(new Date(fast.end), 'Pp')}</span>
+
+                      <span className="font-bold">Actual Duration:</span>
+                      <span>{fast.actualDuration}</span>
+
+                      <span className="font-bold">Difference:</span>
+                      <span>{fast.actualDuration - fast.expectedDuration}</span>
+
+                      <span className="font-bold">Percent Difference:</span>
+                      <span>
+                        {(
+                          ((fast.actualDuration - fast.expectedDuration) /
+                            fast.expectedDuration) *
+                          100
+                        ).toFixed(2)}
+                        %
+                      </span>
+                    </>
+                  )}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-bold">Expected Duration:</span>
-                  <span>{fast.expectedDuration}</span>
-                </div>
-                {fast.end && fast.actualDuration && (
-                  <>
-                    <span className="font-bold">End:</span>
-                    <span>{format(new Date(fast.end), 'Pp')}</span>
-
-                    <span className="font-bold">Actual Duration:</span>
-                    <span>{fast.actualDuration}</span>
-
-                    <span className="font-bold">Difference:</span>
-                    <span>{fast.actualDuration - fast.expectedDuration}</span>
-
-                    <span className="font-bold">Percent Difference:</span>
-                    <span>
-                      {(
-                        ((fast.actualDuration - fast.expectedDuration) /
-                          fast.expectedDuration) *
-                        100
-                      ).toFixed(2)}
-                      %
-                    </span>
-                  </>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

@@ -1,3 +1,5 @@
+import api from '@/api';
+import { useMutation } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 
 type Fast = {
@@ -26,9 +28,8 @@ function fakeFastResponse(): Promise<any> {
     },
     {
       id: 3,
-      start: '2023-07-30T12:00:00',
+      start: '2023-08-05T12:00:00',
       expectedDuration: 24,
-      actualDuration: 24,
     },
   ];
 
@@ -72,4 +73,25 @@ export function useCurrentFast(): Fast | undefined {
   }, []);
 
   return currentFast;
+}
+
+export function useFastMutation() {
+  const mutationFn = (variables: {
+    id?: number;
+    start?: string;
+    expectedDuration?: number;
+    end?: string;
+  }) =>
+    api.poke({
+      app: 'trackur',
+      mark: 'fast-action',
+      json: {
+        id: variables.id,
+        start: variables.start,
+        expectedDuration: variables.expectedDuration,
+        end: variables.end,
+      },
+    });
+
+  return useMutation(mutationFn);
 }
