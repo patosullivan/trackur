@@ -18,15 +18,11 @@ export default function useReactQueryScry<T>({
 }) {
   const fetchData = useCallback(
     async () =>
-      useSchedulerStore.getState().wait(
-        async () =>
-          api.scry<T>({
-            app,
-            path,
-          }),
-        priority
-      ),
-    [app, path, priority]
+      api.scry<T>({
+        app,
+        path,
+      }),
+    [app, path]
   );
 
   return useQuery<T>(queryKey, fetchData, {

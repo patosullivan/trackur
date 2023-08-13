@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "tsc": "tsc --noEmit"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.4",
@@ -23,6 +24,7 @@
     "classnames": "^2.3.2",
     "color2k": "^2.0.2",
     "date-fns": "^2.30.0",
+    "date-fns-tz": "^2.0.0",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -34,6 +36,7 @@
     "react-select": "^5.7.4",
     "tailwindcss-scoped-groups": "^2.0.0",
     "usehooks-ts": "^2.9.1",
+    "uuid": "^9.0.0",
     "zustand": "^3.7.2"
   },
   "devDependencies": {
@@ -44,6 +47,7 @@
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/react-helmet": "^6.1.6",
+    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@urbit/vite-plugin-urbit": "^1.0.0",

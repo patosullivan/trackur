@@ -3,24 +3,42 @@ import Layout from '@/components/Layout/Layout';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import { useCurrentFast, useFastMutation, useFasts } from '@/state/fasts';
-import { format } from 'date-fns';
+import {
+  useCurrentFast,
+  useAddFastMutation,
+  useFasts,
+  useEndFastMutation,
+  useDeleteFastMutation,
+} from '@/state/fasts';
+// import { format, } from 'date-fns';
+import { utcToZonedTime, format } from 'date-fns-tz';
 import classNames from 'classnames';
+import { intervalToDuration } from 'date-fns';
 
 export default function Fast() {
   const { fasts, loading } = useFasts();
+  console.log({ fasts });
   const currentFast = useCurrentFast();
-  const { mutate } = useFastMutation();
+  const { mutate: addFastMutation } = useAddFastMutation();
+  const { mutate: endFastMutation } = useEndFastMutation();
+  const { mutate: deleteFastMutation } = useDeleteFastMutation();
   const [currentDuration, setCurrentDuration] = useState(0);
   const currentDurationHours = Math.floor(currentDuration);
   const currentDurationMinutes = Math.floor(
     (currentDuration - currentDurationHours) * 60
   );
+  const now = new Date();
+  const getLocalDateTimeString = (date: Date) => {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const zoneDate = utcToZonedTime(now, timeZone);
+    return format(zoneDate, "yyyy-MM-dd'T'HH:mm", { timeZone });
+  };
+
+  const localDateTime = getLocalDateTimeString(now);
 
   useEffect(() => {
     if (currentFast) {
-      const start = new Date(currentFast.start);
-      const now = new Date();
+      const start = new Date(currentFast['fast-meta'].start);
       const diff = now.getTime() - start.getTime();
       const diffInHours = diff / 1000 / 60 / 60;
 
@@ -34,7 +52,12 @@ export default function Fast() {
     watch,
     formState: { errors },
   } = useForm();
-  const onSubmit = (data: any) => console.log(data);
+  const onSubmit = (data: any) => {
+    addFastMutation({
+      start: new Date(data.start).getTime(),
+      expectedDuration: parseInt(data.duration, 10),
+    });
+  };
 
   return (
     <Layout
@@ -56,11 +79,13 @@ export default function Fast() {
           <div className="flex flex-col space-y-2">
             <div className="flex items-center space-x-2">
               <span className="font-bold">Start:</span>
-              <span>{format(new Date(currentFast.start), 'Pp')}</span>
+              <span>
+                {format(new Date(currentFast['fast-meta'].start), 'Pp')}
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-bold">Expected Duration:</span>
-              <span>{currentFast.expectedDuration}</span>
+              <span>{currentFast['fast-meta'].expectedduration}</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-bold">Current Duration:</span>
@@ -68,14 +93,19 @@ export default function Fast() {
               <span>{currentDurationMinutes} minutes,</span>
               <span>
                 {Math.floor(
-                  (currentDuration / currentFast.expectedDuration) * 100
+                  (currentDuration /
+                    currentFast['fast-meta'].expectedduration) *
+                    100
                 )}
                 % done
               </span>
             </div>
             <button
               onClick={() =>
-                mutate({ id: currentFast.id, end: new Date().toISOString() })
+                endFastMutation({
+                  id: currentFast.id,
+                  end: new Date().getTime(),
+                })
               }
               className="button"
             >
@@ -98,8 +128,7 @@ export default function Fast() {
                   className="rounded-md border border-gray-300 p-2 dark:border-gray-700"
                   type="datetime-local"
                   id="start"
-                  // this should be the current time in the user's timezone
-                  defaultValue={new Date().toISOString().slice(0, 16)}
+                  defaultValue={localDateTime}
                   {...register('start', { required: true })}
                 />
                 {errors.start && (
@@ -143,32 +172,44 @@ export default function Fast() {
                 >
                   <div className="flex items-center space-x-2">
                     <span className="font-bold">Start:</span>
-                    <span>{format(new Date(fast.start), 'Pp')}</span>
+                    <span>
+                      {format(new Date(fast['fast-meta'].start), 'Pp')}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="font-bold">Expected Duration:</span>
-                    <span>{fast.expectedDuration}</span>
+                    <span>{fast['fast-meta'].expectedduration}</span>
                   </div>
-                  {fast.end && fast.actualDuration && (
+                  {fast['fast-meta'].end && (
                     <>
                       <span className="font-bold">End:</span>
-                      <span>{format(new Date(fast.end), 'Pp')}</span>
+                      <span>
+                        {format(new Date(fast['fast-meta'].end), 'Pp')}
+                      </span>
 
                       <span className="font-bold">Actual Duration:</span>
-                      <span>{fast.actualDuration}</span>
-
-                      <span className="font-bold">Difference:</span>
-                      <span>{fast.actualDuration - fast.expectedDuration}</span>
-
-                      <span className="font-bold">Percent Difference:</span>
                       <span>
-                        {(
-                          ((fast.actualDuration - fast.expectedDuration) /
-                            fast.expectedDuration) *
-                          100
-                        ).toFixed(2)}
-                        %
+                        {
+                          intervalToDuration({
+                            start: new Date(fast['fast-meta'].start),
+                            end: new Date(fast['fast-meta'].end),
+                          }).hours
+                        }{' '}
+                        hours and{' '}
+                        {
+                          intervalToDuration({
+                            start: new Date(fast['fast-meta'].start),
+                            end: new Date(fast['fast-meta'].end),
+                          }).minutes
+                        }{' '}
+                        minutes
                       </span>
+                      <button
+                        onClick={() => deleteFastMutation({ id: fast.id })}
+                        className="button"
+                      >
+                        Delete
+                      </button>
                     </>
                   )}
                 </div>

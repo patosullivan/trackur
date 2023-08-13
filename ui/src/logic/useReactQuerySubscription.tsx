@@ -38,14 +38,10 @@ export default function useReactQuerySubscription({
   );
 
   const fetchData = async () =>
-    useSchedulerStore.getState().wait(
-      async () =>
-        api.scry({
-          app: scryApp,
-          path: scry,
-        }),
-      priority
-    );
+    api.scry({
+      app: scryApp,
+      path: scry,
+    });
 
   useEffect(() => {
     api.subscribe({
