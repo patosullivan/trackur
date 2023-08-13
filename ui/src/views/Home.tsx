@@ -15,7 +15,7 @@ export default function Home() {
         </span>
 
         <div className="mt-8 flex flex-col space-y-2">
-          <button onClick={() => navigate('/fast')} className="button">
+          <button onClick={() => navigate('/fasts')} className="button">
             Start a Fast
           </button>
           <button className="button">Log your weight</button>

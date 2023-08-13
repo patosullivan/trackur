@@ -1,11 +1,7 @@
 import { useState, useCallback } from 'react';
+import { utcToZonedTime, format as formatTz } from 'date-fns-tz';
 import bigInt, { BigInteger } from 'big-integer';
-import {
-  BigIntOrderedMap,
-  Docket,
-  Treaty,
-  unixToDa,
-} from '@urbit/api';
+import { BigIntOrderedMap, Docket, Treaty, unixToDa } from '@urbit/api';
 import { formatUv } from '@urbit/aura';
 import anyAscii from 'any-ascii';
 import { format, differenceInDays, endOfToday } from 'date-fns';
@@ -311,3 +307,9 @@ export function handleDropdownLink(
     setTimeout(() => setOpen?.(false), 15);
   };
 }
+
+export const getLocalDateTimeString = (date: Date) => {
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const zoneDate = utcToZonedTime(date, timeZone);
+  return formatTz(zoneDate, "yyyy-MM-dd'T'HH:mm", { timeZone });
+};

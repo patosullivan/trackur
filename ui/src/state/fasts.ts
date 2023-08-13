@@ -1,6 +1,5 @@
 import api from '@/api';
 import { v4 as uuidv4 } from 'uuid';
-import useReactQueryScry from '@/logic/useReactQueryScry';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import useReactQuerySubscription from '@/logic/useReactQuerySubscription';
@@ -12,7 +11,7 @@ type FastMeta = {
   actualduration?: number;
 };
 
-type Fast = {
+export type Fast = {
   id: number;
   'fast-meta': FastMeta;
 };
@@ -106,6 +105,43 @@ export function useEndFastMutation() {
           id: variables.id,
           'fast-meta': {
             ...fast['fast-meta'],
+            end: variables.end,
+          },
+        },
+      },
+    });
+  };
+
+  return useMutation(mutationFn, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['fasts', 'all']);
+    },
+  });
+}
+
+export function useEditFastMutation() {
+  const fasts = useFasts();
+  const queryClient = useQueryClient();
+  const mutationFn = (variables: {
+    id: number;
+    start: number;
+    end: number;
+  }) => {
+    const fast = fasts.fasts.find((fast: Fast) => fast.id === variables.id);
+
+    if (!fast) {
+      throw new Error('No fast found');
+    }
+
+    return api.poke({
+      app: 'fasts',
+      mark: 'fasts-action',
+      json: {
+        edit: {
+          id: variables.id,
+          'fast-meta': {
+            ...fast['fast-meta'],
+            start: variables.start,
             end: variables.end,
           },
         },

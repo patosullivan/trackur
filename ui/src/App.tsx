@@ -3,7 +3,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Helmet } from 'react-helmet';
 import Home from '@/views/Home';
 import ErrorAlert from '@/components/ErrorAlert';
-import Fast from '@/views/Fast';
+import Fasts from '@/views/Fasts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 function App() {
@@ -20,7 +20,7 @@ function App() {
             </Helmet>
             <Routes>
               <Route element={<Home />} path="/" />
-              <Route element={<Fast />} path="/fast" />
+              <Route element={<Fasts />} path="/fasts" />
             </Routes>
           </Router>
         </div>
