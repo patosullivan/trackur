@@ -30,17 +30,29 @@ export default function Fasts() {
   const currentDurationMinutes = Math.floor(
     (currentDuration - currentDurationHours) * 60
   );
+  const currentDurationSeconds = Math.floor(
+    currentDuration * 3600 -
+      currentDurationHours * 3600 -
+      currentDurationMinutes * 60
+  );
   const now = new Date();
 
   const localDateTime = getLocalDateTimeString(now);
 
   useEffect(() => {
     if (currentFast) {
-      const start = new Date(currentFast['fast-meta'].start);
-      const diff = now.getTime() - start.getTime();
-      const diffInHours = diff / 1000 / 60 / 60;
+      const updateDuration = () => {
+        const start = new Date(currentFast['fast-meta'].start);
+        const diff = Date.now() - start.getTime();
+        const diffInHours = diff / 1000 / 60 / 60;
+        setCurrentDuration(diffInHours);
+      };
 
-      setCurrentDuration(diffInHours);
+      updateDuration();
+
+      const intervalId = setInterval(updateDuration, 1000);
+
+      return () => clearInterval(intervalId);
     }
   }, [currentFast]);
 
@@ -69,11 +81,14 @@ export default function Fasts() {
     >
       <div className="flex h-full w-full flex-col items-center justify-center">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          Fast
+          Fasts
         </h1>
 
         {currentFast ? (
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-2 pt-4">
+            <h2 className="text-center text-xl font-bold text-gray-800 dark:text-gray-100">
+              Current Fast
+            </h2>
             <div className="flex items-center space-x-2">
               <span className="font-bold">Start:</span>
               <span>
@@ -82,14 +97,16 @@ export default function Fasts() {
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-bold">Expected Duration:</span>
-              <span>{currentFast['fast-meta'].expectedduration}</span>
+              <span>{currentFast['fast-meta'].expectedduration} hours</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-bold">Current Duration:</span>
-              <span>{currentDurationHours} hours,</span>
-              <span>{currentDurationMinutes} minutes,</span>
               <span>
-                {Math.floor(
+                {currentDurationHours}:{currentDurationMinutes}:
+                {currentDurationSeconds}
+              </span>
+              <span>
+                ~{Math.floor(
                   (currentDuration /
                     currentFast['fast-meta'].expectedduration) *
                     100
@@ -97,17 +114,19 @@ export default function Fasts() {
                 % done
               </span>
             </div>
-            <button
-              onClick={() =>
-                endFastMutation({
-                  id: currentFast.id,
-                  end: new Date().getTime(),
-                })
-              }
-              className="button"
-            >
-              End Fast
-            </button>
+            <div className="flex items-center justify-center space-x-2 pt-4">
+              <button
+                onClick={() =>
+                  endFastMutation({
+                    id: currentFast.id,
+                    end: new Date().getTime(),
+                  })
+                }
+                className="button"
+              >
+                End Fast
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -150,81 +169,87 @@ export default function Fasts() {
           </>
         )}
 
-        <hr className="mt-4 w-full border-2" />
-        <div className="mt-4 flex flex-col space-y-2">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-            Previous Fasts
-          </h2>
+        {fasts.filter((fast) => fast.id !== currentFast?.id).length > 0 && (
+          <>
+            <hr className="mt-4 w-full border-2" />
+            <div className="mt-4 flex flex-col space-y-2">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Previous Fasts
+              </h2>
 
-          <div className="flex flex-col space-y-2">
-            {loading ? (
-              <span>Loading...</span>
-            ) : (
-              fasts
-                .filter((fast) => fast.id !== currentFast?.id)
-                .map((fast, i) => (
-                  <div
-                    key={fast.id}
-                    className={classNames('flex flex-col space-y-2', {
-                      'border-t border-gray-300 pt-2 dark:border-gray-700':
-                        i > 0,
-                    })}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold">Start:</span>
-                      <span>
-                        {format(new Date(fast['fast-meta'].start), 'Pp')}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold">Expected Duration:</span>
-                      <span>{fast['fast-meta'].expectedduration}</span>
-                    </div>
-                    {fast['fast-meta'].end && (
-                      <>
-                        <span className="font-bold">End:</span>
-                        <span>
-                          {format(new Date(fast['fast-meta'].end), 'Pp')}
-                        </span>
-
-                        <span className="font-bold">Actual Duration:</span>
-                        <span>
-                          {
-                            intervalToDuration({
-                              start: new Date(fast['fast-meta'].start),
-                              end: new Date(fast['fast-meta'].end),
-                            }).hours
-                          }{' '}
-                          hours and{' '}
-                          {
-                            intervalToDuration({
-                              start: new Date(fast['fast-meta'].start),
-                              end: new Date(fast['fast-meta'].end),
-                            }).minutes
-                          }{' '}
-                          minutes
-                        </span>
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => deleteFastMutation({ id: fast.id })}
-                            className="button"
-                          >
-                            Delete
-                          </button>
-                          <button
-                            onClick={() => setEditFast(fast)}
-                            className="button"
-                          >
-                            Edit
-                          </button>
+              <div className="flex flex-col space-y-2">
+                {loading ? (
+                  <span>Loading...</span>
+                ) : (
+                  fasts
+                    .filter((fast) => fast.id !== currentFast?.id)
+                    .map((fast, i) => (
+                      <div
+                        key={fast.id}
+                        className={classNames('flex flex-col space-y-2', {
+                          'border-t border-gray-300 pt-2 dark:border-gray-700':
+                            i > 0,
+                        })}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold">Start:</span>
+                          <span>
+                            {format(new Date(fast['fast-meta'].start), 'Pp')}
+                          </span>
                         </div>
-                      </>
-                    )}
-                  </div>
-                ))
-            )}
-          </div>
-        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold">Expected Duration:</span>
+                          <span>{fast['fast-meta'].expectedduration}</span>
+                        </div>
+                        {fast['fast-meta'].end && (
+                          <>
+                            <span className="font-bold">End:</span>
+                            <span>
+                              {format(new Date(fast['fast-meta'].end), 'Pp')}
+                            </span>
+
+                            <span className="font-bold">Actual Duration:</span>
+                            <span>
+                              {
+                                intervalToDuration({
+                                  start: new Date(fast['fast-meta'].start),
+                                  end: new Date(fast['fast-meta'].end),
+                                }).hours
+                              }{' '}
+                              hours and{' '}
+                              {
+                                intervalToDuration({
+                                  start: new Date(fast['fast-meta'].start),
+                                  end: new Date(fast['fast-meta'].end),
+                                }).minutes
+                              }{' '}
+                              minutes
+                            </span>
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() =>
+                                  deleteFastMutation({ id: fast.id })
+                                }
+                                className="button"
+                              >
+                                Delete
+                              </button>
+                              <button
+                                onClick={() => setEditFast(fast)}
+                                className="button"
+                              >
+                                Edit
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
       <Dialog
         open={!!editFast}

@@ -17,19 +17,12 @@ export type Fast = {
 };
 
 export function useFasts(): { fasts: Fast[]; loading: boolean } {
-  // const { data, ...rest } = useReactQueryScry<{ time: number; fasts: [] }>({
-  // queryKey: ['fasts', 'all'],
-  // app: 'fasts',
-  // path: '/entries/all',
-  // });
   const { data, ...rest } = useReactQuerySubscription({
     queryKey: ['fasts', 'all'],
     app: 'fasts',
     scry: '/entries/all',
     path: '/updates',
   });
-
-  console.log({ data });
 
   if (!data) {
     return { fasts: [], loading: true };
