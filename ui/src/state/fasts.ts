@@ -33,8 +33,31 @@ export function useFasts(): { fasts: Fast[]; loading: boolean } {
   return { fasts, loading: rest.isLoading };
 }
 
-export function useCurrentFast(): Fast | undefined {
+export function useCurrentFast(): {
+  currentFast: Fast | undefined;
+  currentDurationHours: number;
+  currentDurationMinutes: number;
+  currentDurationSeconds: number;
+  percentageComplete: number;
+} {
   const [currentFast, setCurrentFast] = useState<Fast>();
+  const [currentDuration, setCurrentDuration] = useState(0);
+  const currentDurationHours = Math.floor(currentDuration);
+  const currentDurationMinutes = Math.floor(
+    (currentDuration - currentDurationHours) * 60
+  );
+
+  const currentDurationSeconds = Math.floor(
+    currentDuration * 3600 -
+      currentDurationHours * 3600 -
+      currentDurationMinutes * 60
+  );
+  const percentageComplete = currentFast
+    ? Math.floor(
+        (currentDuration / currentFast['fast-meta'].expectedduration) * 100
+      )
+    : 0;
+
   const { fasts, loading } = useFasts();
 
   useEffect(() => {
@@ -45,7 +68,30 @@ export function useCurrentFast(): Fast | undefined {
     setCurrentFast(currentFast);
   }, [fasts, loading]);
 
-  return currentFast;
+  useEffect(() => {
+    if (currentFast) {
+      const updateDuration = () => {
+        const start = new Date(currentFast['fast-meta'].start);
+        const diff = Date.now() - start.getTime();
+        const diffInHours = diff / 1000 / 60 / 60;
+        setCurrentDuration(diffInHours);
+      };
+
+      updateDuration();
+
+      const intervalId = setInterval(updateDuration, 1000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [currentFast]);
+
+  return {
+    currentFast,
+    currentDurationHours,
+    currentDurationMinutes,
+    currentDurationSeconds,
+    percentageComplete,
+  };
 }
 
 export function useFast(id: number): Fast | undefined {

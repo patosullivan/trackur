@@ -2,12 +2,11 @@ import CaretLeftIcon from '@/components/icons/CaretLeftIcon';
 import Layout from '@/components/Layout/Layout';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   useCurrentFast,
   useAddFastMutation,
   useFasts,
-  useEndFastMutation,
   useDeleteFastMutation,
   Fast,
 } from '@/state/fasts';
@@ -17,50 +16,25 @@ import { intervalToDuration } from 'date-fns';
 import Dialog from '@/components/Dialog';
 import EditFast from '@/components/EditFast';
 import { getLocalDateTimeString } from '@/logic/utils';
+import CurrentFast from '@/components/CurrentFast';
+import PrimaryButton from '@/components/PrimaryButton';
 
 export default function Fasts() {
   const [editFast, setEditFast] = useState<Fast | undefined>();
   const { fasts, loading } = useFasts();
-  const currentFast = useCurrentFast();
+  const { currentFast } = useCurrentFast();
   const { mutate: addFastMutation } = useAddFastMutation();
-  const { mutate: endFastMutation } = useEndFastMutation();
   const { mutate: deleteFastMutation } = useDeleteFastMutation();
-  const [currentDuration, setCurrentDuration] = useState(0);
-  const currentDurationHours = Math.floor(currentDuration);
-  const currentDurationMinutes = Math.floor(
-    (currentDuration - currentDurationHours) * 60
-  );
-  const currentDurationSeconds = Math.floor(
-    currentDuration * 3600 -
-      currentDurationHours * 3600 -
-      currentDurationMinutes * 60
-  );
   const now = new Date();
 
   const localDateTime = getLocalDateTimeString(now);
-
-  useEffect(() => {
-    if (currentFast) {
-      const updateDuration = () => {
-        const start = new Date(currentFast['fast-meta'].start);
-        const diff = Date.now() - start.getTime();
-        const diffInHours = diff / 1000 / 60 / 60;
-        setCurrentDuration(diffInHours);
-      };
-
-      updateDuration();
-
-      const intervalId = setInterval(updateDuration, 1000);
-
-      return () => clearInterval(intervalId);
-    }
-  }, [currentFast]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+
   const onSubmit = (data: any) => {
     addFastMutation({
       start: new Date(data.start).getTime(),
@@ -85,49 +59,7 @@ export default function Fasts() {
         </h1>
 
         {currentFast ? (
-          <div className="flex flex-col space-y-2 pt-4">
-            <h2 className="text-center text-xl font-bold text-gray-800 dark:text-gray-100">
-              Current Fast
-            </h2>
-            <div className="flex items-center space-x-2">
-              <span className="font-bold">Start:</span>
-              <span>
-                {format(new Date(currentFast['fast-meta'].start), 'Pp')}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="font-bold">Expected Duration:</span>
-              <span>{currentFast['fast-meta'].expectedduration} hours</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="font-bold">Current Duration:</span>
-              <span>
-                {currentDurationHours}:{currentDurationMinutes}:
-                {currentDurationSeconds}
-              </span>
-              <span>
-                ~{Math.floor(
-                  (currentDuration /
-                    currentFast['fast-meta'].expectedduration) *
-                    100
-                )}
-                % done
-              </span>
-            </div>
-            <div className="flex items-center justify-center space-x-2 pt-4">
-              <button
-                onClick={() =>
-                  endFastMutation({
-                    id: currentFast.id,
-                    end: new Date().getTime(),
-                  })
-                }
-                className="button"
-              >
-                End Fast
-              </button>
-            </div>
-          </div>
+          <CurrentFast />
         ) : (
           <>
             <span className="text-gray-600 dark:text-gray-400">
@@ -151,7 +83,7 @@ export default function Fasts() {
                   <span className="text-red-500">This field is required</span>
                 )}
 
-                <label htmlFor="duration">Duration (in hours)</label>
+                <label htmlFor="duration">Expected Duration (in hours)</label>
                 <input
                   className="rounded-md border border-gray-300 p-2 dark:border-gray-700"
                   type="number"
@@ -162,9 +94,9 @@ export default function Fasts() {
                   <span className="text-red-500">This field is required</span>
                 )}
               </div>
-              <button className="button" type="submit">
+              <PrimaryButton type="submit">
                 Start
-              </button>
+              </PrimaryButton>
             </form>
           </>
         )}

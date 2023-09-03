@@ -5,6 +5,7 @@ import Home from '@/views/Home';
 import ErrorAlert from '@/components/ErrorAlert';
 import Fasts from '@/views/Fasts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Weight from './views/Weight';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Routes>
               <Route element={<Home />} path="/" />
               <Route element={<Fasts />} path="/fasts" />
+              <Route element={<Weight />} path="/weight" />
             </Routes>
           </Router>
         </div>
