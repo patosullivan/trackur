@@ -9,7 +9,7 @@
 ::
 +$  weight-meta
   $:  date=@u
-      weight=@ud
+      weight=@rd
   ==
 ::
 +$  action

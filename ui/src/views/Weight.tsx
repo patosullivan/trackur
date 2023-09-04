@@ -33,9 +33,14 @@ export default function Weight() {
   } = useForm();
 
   const onSubmit = (data: any) => {
+    console.log({
+      date: new Date(data.date).getTime(),
+      weight: parseFloat(data.weight),
+    })
+
     addWeightMutation({
       date: new Date(data.date).getTime(),
-      weight: parseInt(data.weight, 10),
+      weight: parseFloat(data.weight),
     });
   };
 
@@ -60,6 +65,7 @@ export default function Weight() {
           <input
             className="rounded-md border border-gray-300 px-4 py-2"
             type="number"
+            step="0.1"
             id="weight"
             {...register('weight', { required: true })}
           />
