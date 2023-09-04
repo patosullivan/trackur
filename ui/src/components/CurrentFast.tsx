@@ -1,5 +1,6 @@
 import { useCurrentFast, useEndFastMutation } from '@/state/fasts';
 import { format } from 'date-fns-tz';
+import PrimaryButton from './PrimaryButton';
 
 export default function CurrentFast() {
   const {
@@ -9,7 +10,7 @@ export default function CurrentFast() {
     currentDurationSeconds,
     percentageComplete,
   } = useCurrentFast();
-  const { mutate: endFastMutation } = useEndFastMutation();
+  const { mutate: endFastMutation, isLoading } = useEndFastMutation();
 
   if (!currentFast) return null;
 
@@ -34,19 +35,17 @@ export default function CurrentFast() {
         </span>
         <span>~{percentageComplete}% done</span>
       </div>
-      <div className="flex items-center justify-center space-x-2 pt-4">
-        <button
-          onClick={() =>
-            endFastMutation({
-              id: currentFast.id,
-              end: new Date().getTime(),
-            })
-          }
-          className="button"
-        >
-          End Fast
-        </button>
-      </div>
+      <PrimaryButton
+        onClick={() =>
+          endFastMutation({
+            id: currentFast.id,
+            end: new Date().getTime(),
+          })
+        }
+        isLoading={isLoading}
+      >
+        End Fast
+      </PrimaryButton>
     </div>
   );
 }

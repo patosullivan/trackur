@@ -1,6 +1,8 @@
 import { getLocalDateTimeString } from '@/logic/utils';
 import { Fast, useEditFastMutation } from '@/state/fasts';
 import { useForm } from 'react-hook-form';
+import PrimaryButton from './PrimaryButton';
+import SecondaryButton from './SecondaryButton';
 
 export default function EditFast({
   editFast,
@@ -9,7 +11,8 @@ export default function EditFast({
   editFast: Fast | undefined;
   setEditFast: React.Dispatch<React.SetStateAction<Fast | undefined>>;
 }) {
-  const { mutate: editFastMutation } = useEditFastMutation();
+  const { mutate: editFastMutation, isLoading: editFastIsLoading } =
+    useEditFastMutation();
 
   const {
     register,
@@ -73,16 +76,12 @@ export default function EditFast({
             />
           </div>
           <div className="flex space-x-2">
-            <button
-              className="button"
-              onClick={() => setEditFast(undefined)}
-              color="primary"
-            >
+            <SecondaryButton onClick={() => setEditFast(undefined)}>
               Cancel
-            </button>
-            <button className="button" color="primary" type="submit">
+            </SecondaryButton>
+            <PrimaryButton isLoading={editFastIsLoading} type="submit">
               Save
-            </button>
+            </PrimaryButton>
           </div>
         </form>
       </div>

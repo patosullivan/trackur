@@ -15,14 +15,18 @@ import {
 import { useState } from 'react';
 import Dialog from '@/components/Dialog';
 import EditWeight from '@/components/EditWeight';
+import DestructiveButton from '@/components/DestructiveButton';
+import SecondaryButton from '@/components/SecondaryButton';
 
 export default function Weight() {
   const [editWeight, setEditWeight] = useState<WeightType | undefined>(
     undefined
   );
   const { weights, loading } = useWeights();
-  const { mutate: addWeightMutation } = useAddWeightMutation();
-  const { mutate: deleteWeightMutation } = useDeleteWeightMutation();
+  const { mutate: addWeightMutation, isLoading: addWeightIsLoading } =
+    useAddWeightMutation();
+  const { mutate: deleteWeightMutation, isLoading: deleteWeightIsLoading } =
+    useDeleteWeightMutation();
   const now = new Date();
   const localDateTime = getLocalDateTimeString(now);
 
@@ -36,7 +40,7 @@ export default function Weight() {
     console.log({
       date: new Date(data.date).getTime(),
       weight: parseFloat(data.weight),
-    })
+    });
 
     addWeightMutation({
       date: new Date(data.date).getTime(),
@@ -83,7 +87,9 @@ export default function Weight() {
           {errors.date && (
             <span className="text-red-500">This field is required</span>
           )}
-          <PrimaryButton type="submit">Submit</PrimaryButton>
+          <PrimaryButton isLoading={addWeightIsLoading} type="submit">
+            Submit
+          </PrimaryButton>
         </form>
         {weights.length > 0 && (
           <>
@@ -116,20 +122,17 @@ export default function Weight() {
                         <span>{weight['weight-meta'].weight}</span>
                       </div>
                       <div className="flex space-x-2">
-                        <button
+                        <DestructiveButton
+                          isLoading={deleteWeightIsLoading}
                           onClick={() =>
                             deleteWeightMutation({ id: weight.id })
                           }
-                          className="button"
                         >
                           Delete
-                        </button>
-                        <button
-                          onClick={() => setEditWeight(weight)}
-                          className="button"
-                        >
+                        </DestructiveButton>
+                        <SecondaryButton onClick={() => setEditWeight(weight)}>
                           Edit
-                        </button>
+                        </SecondaryButton>
                       </div>
                     </div>
                   ))

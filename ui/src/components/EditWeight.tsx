@@ -2,6 +2,7 @@ import { getLocalDateTimeString } from '@/logic/utils';
 import { Weight, useEditWeightMutation } from '@/state/weights';
 import { useForm } from 'react-hook-form';
 import PrimaryButton from './PrimaryButton';
+import SecondaryButton from './SecondaryButton';
 
 export default function EditWeight({
   editWeight,
@@ -10,7 +11,8 @@ export default function EditWeight({
   editWeight: Weight | undefined;
   setEditWeight: React.Dispatch<React.SetStateAction<Weight | undefined>>;
 }) {
-  const { mutate: editWeightMutation } = useEditWeightMutation();
+  const { mutate: editWeightMutation, isLoading: editWeightIsLoading } =
+    useEditWeightMutation();
 
   const {
     register,
@@ -74,10 +76,12 @@ export default function EditWeight({
             )}
           </div>
           <div className="flex space-x-2">
-            <button className="button" onClick={() => setEditWeight(undefined)}>
+            <SecondaryButton onClick={() => setEditWeight(undefined)}>
               Cancel
-            </button>
-            <PrimaryButton type="submit">Save</PrimaryButton>
+            </SecondaryButton>
+            <PrimaryButton isLoading={editWeightIsLoading} type="submit">
+              Save
+            </PrimaryButton>
           </div>
         </form>
       </div>

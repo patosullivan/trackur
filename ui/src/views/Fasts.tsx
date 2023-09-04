@@ -18,13 +18,17 @@ import EditFast from '@/components/EditFast';
 import { getLocalDateTimeString } from '@/logic/utils';
 import CurrentFast from '@/components/CurrentFast';
 import PrimaryButton from '@/components/PrimaryButton';
+import DestructiveButton from '@/components/DestructiveButton';
+import SecondaryButton from '@/components/SecondaryButton';
 
 export default function Fasts() {
   const [editFast, setEditFast] = useState<Fast | undefined>();
   const { fasts, loading } = useFasts();
   const { currentFast } = useCurrentFast();
-  const { mutate: addFastMutation } = useAddFastMutation();
-  const { mutate: deleteFastMutation } = useDeleteFastMutation();
+  const { mutate: addFastMutation, isLoading: addFastIsLoading } =
+    useAddFastMutation();
+  const { mutate: deleteFastMutation, isLoading: deleteFastIsLoading } =
+    useDeleteFastMutation();
   const now = new Date();
 
   const localDateTime = getLocalDateTimeString(now);
@@ -94,7 +98,7 @@ export default function Fasts() {
                   <span className="text-red-500">This field is required</span>
                 )}
               </div>
-              <PrimaryButton type="submit">
+              <PrimaryButton isLoading={addFastIsLoading} type="submit">
                 Start
               </PrimaryButton>
             </form>
@@ -115,6 +119,7 @@ export default function Fasts() {
                 ) : (
                   fasts
                     .filter((fast) => fast.id !== currentFast?.id)
+                    .reverse()
                     .map((fast, i) => (
                       <div
                         key={fast.id}
@@ -158,20 +163,19 @@ export default function Fasts() {
                               minutes
                             </span>
                             <div className="flex space-x-2">
-                              <button
+                              <DestructiveButton
                                 onClick={() =>
                                   deleteFastMutation({ id: fast.id })
                                 }
-                                className="button"
+                                isLoading={deleteFastIsLoading}
                               >
                                 Delete
-                              </button>
-                              <button
+                              </DestructiveButton>
+                              <SecondaryButton
                                 onClick={() => setEditFast(fast)}
-                                className="button"
                               >
                                 Edit
-                              </button>
+                              </SecondaryButton>
                             </div>
                           </>
                         )}

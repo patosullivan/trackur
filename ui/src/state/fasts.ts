@@ -100,6 +100,56 @@ export function useFast(id: number): Fast | undefined {
   return fasts.find((fast: Fast) => fast.id === id);
 }
 
+export function useLastFast(): {
+  lastFast: Fast | undefined;
+  timeSinceLastFastHours: number;
+  timeSinceLastFastMinutes: number;
+  timeSinceLastFastSeconds: number;
+} {
+  const { fasts } = useFasts();
+  const [lastFast, setLastFast] = useState<Fast>();
+  const [timeSinceLastFast, setTimeSinceLastFast] = useState(0);
+  const timeSinceLastFastHours = Math.floor(timeSinceLastFast);
+  const timeSinceLastFastMinutes = Math.floor(
+    (timeSinceLastFast - timeSinceLastFastHours) * 60
+  );
+  const timeSinceLastFastSeconds = Math.floor(
+    timeSinceLastFast * 3600 -
+      timeSinceLastFastHours * 3600 -
+      timeSinceLastFastMinutes * 60
+  );
+
+  useEffect(() => {
+    if (fasts.length > 0) {
+      setLastFast(fasts[fasts.length - 1]);
+    }
+  }, [fasts]);
+
+  useEffect(() => {
+    if (lastFast && lastFast['fast-meta'].end !== undefined) {
+      const updateDuration = () => {
+        // const end = new Date();
+        const diff = Date.now() - lastFast['fast-meta'].end!!;
+        const diffInHours = diff / 1000 / 60 / 60;
+        setTimeSinceLastFast(diffInHours);
+      };
+
+      updateDuration();
+
+      const intervalId = setInterval(updateDuration, 1000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [lastFast]);
+
+  return {
+    lastFast,
+    timeSinceLastFastHours,
+    timeSinceLastFastMinutes,
+    timeSinceLastFastSeconds,
+  };
+}
+
 export function useAddFastMutation() {
   const queryClient = useQueryClient();
   const mutationFn = (variables: { start: number; expectedDuration: number }) =>
