@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
         manifest: {
           name: 'Trackur',
           short_name: 'Trackur',
-          description: 'Trackur',
+          description: 'Track your weight, fasts, and other daily health routines (coming soon).',
           theme_color: '#ffffff',
           icons: [
             {
