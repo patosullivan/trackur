@@ -103,7 +103,7 @@ export default function Weight() {
                 {loading ? (
                   <span>Loading...</span>
                 ) : (
-                  weights.map((weight, i) => (
+                  weights.reverse().map((weight, i) => (
                     <div
                       key={weight.id}
                       className={classNames('flex flex-col space-y-2', {
