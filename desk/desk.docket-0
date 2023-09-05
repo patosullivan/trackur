@@ -2,7 +2,7 @@
     info+'Track your weight, fasts, and other daily health routines (coming soon).'
     color+0xef.f0f4
     image+'https://togten.com:9001/finned-palmer/android-chrome-512x512.png'
-    glob-ames+[~bidryl-piltex-finned-palmer 0v0]
+    glob-ames+[~dister-finned-palmer 0v0]
     base+'trackur'
     version+[0 0 1]
     website+''
