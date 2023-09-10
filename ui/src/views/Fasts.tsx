@@ -41,7 +41,12 @@ export default function Fasts() {
     setValue,
     watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      start: localDateTime,
+      duration: 16,
+    },
+  });
 
   const watchDuration = watch('duration');
   const watchStart = watch('start');
@@ -115,7 +120,7 @@ export default function Fasts() {
                   {format(
                     new Date(
                       new Date(watchStart).getTime() +
-                        parseInt(watchDuration || '0', 10) * 60 * 60 * 1000
+                        watchDuration * 60 * 60 * 1000
                     ),
                     'Pp'
                   )}
