@@ -16,6 +16,19 @@ export type Fast = {
   'fast-meta': FastMeta;
 };
 
+const sortFasts = (fasts: Fast[]) =>
+  fasts.sort((a: Fast, b: Fast) => {
+    if (a['fast-meta'].end === undefined) {
+      return 1;
+    }
+
+    if (b['fast-meta'].end === undefined) {
+      return -1;
+    }
+
+    return b['fast-meta'].end - a['fast-meta'].end;
+  });
+
 export function useFasts(): { fasts: Fast[]; loading: boolean } {
   const { data, ...rest } = useReactQuerySubscription({
     queryKey: ['fasts', 'all'],
@@ -30,7 +43,9 @@ export function useFasts(): { fasts: Fast[]; loading: boolean } {
 
   const { fasts } = data as { fasts: Fast[]; time: number };
 
-  return { fasts, loading: rest.isLoading };
+  const sortedFasts = sortFasts(fasts);
+
+  return { fasts: sortedFasts, loading: rest.isLoading };
 }
 
 export function useCurrentFast(): {
@@ -121,7 +136,7 @@ export function useLastFast(): {
 
   useEffect(() => {
     if (fasts.length > 0) {
-      setLastFast(fasts[fasts.length - 1]);
+      setLastFast(fasts[0]);
     }
   }, [fasts]);
 

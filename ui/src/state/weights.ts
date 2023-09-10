@@ -1,7 +1,6 @@
 import api from '@/api';
 import { v4 as uuidv4 } from 'uuid';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
 import useReactQuerySubscription from '@/logic/useReactQuerySubscription';
 
 type WeightMeta = {
@@ -13,6 +12,11 @@ export type Weight = {
   id: number;
   'weight-meta': WeightMeta;
 };
+
+const sortWeights = (weights: Weight[]) =>
+  weights.sort(
+    (a: Weight, b: Weight) => a['weight-meta'].date - b['weight-meta'].date
+  );
 
 export function useWeights(): { weights: Weight[]; loading: boolean } {
   const { data, ...rest } = useReactQuerySubscription({
@@ -28,7 +32,9 @@ export function useWeights(): { weights: Weight[]; loading: boolean } {
 
   const { weights } = data as { weights: Weight[]; time: number };
 
-  return { weights, loading: rest.isLoading };
+  const sortedWeights = sortWeights(weights);
+
+  return { weights: sortedWeights, loading: rest.isLoading };
 }
 
 export function useWeight(id: number): Weight | undefined {
@@ -69,7 +75,9 @@ export function useEditWeightMutation() {
     date: number;
     weight: number;
   }) => {
-    const weight = weights.weights.find((weight: Weight) => weight.id === variables.id);
+    const weight = weights.weights.find(
+      (weight: Weight) => weight.id === variables.id
+    );
 
     if (!weight) {
       throw new Error('No weight found');

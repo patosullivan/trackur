@@ -119,7 +119,6 @@ export default function Fasts() {
                 ) : (
                   fasts
                     .filter((fast) => fast.id !== currentFast?.id)
-                    .reverse()
                     .map((fast, i) => (
                       <div
                         key={fast.id}
