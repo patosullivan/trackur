@@ -2,13 +2,14 @@ import CaretLeftIcon from '@/components/icons/CaretLeftIcon';
 import Layout from '@/components/Layout/Layout';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   useCurrentFast,
   useAddFastMutation,
   useFasts,
   useDeleteFastMutation,
   Fast,
+  useLastFast,
 } from '@/state/fasts';
 import { format } from 'date-fns-tz';
 import classNames from 'classnames';
@@ -25,6 +26,7 @@ export default function Fasts() {
   const [editFast, setEditFast] = useState<Fast | undefined>();
   const { fasts, loading } = useFasts();
   const { currentFast } = useCurrentFast();
+  const { lastFast } = useLastFast();
   const { mutate: addFastMutation, isLoading: addFastIsLoading } =
     useAddFastMutation();
   const { mutate: deleteFastMutation, isLoading: deleteFastIsLoading } =
@@ -36,8 +38,15 @@ export default function Fasts() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm();
+
+  useEffect(() => {
+    if (lastFast) {
+      setValue('duration', lastFast['fast-meta'].expectedduration);
+    }
+  }, [lastFast, setValue]);
 
   const onSubmit = (data: any) => {
     addFastMutation({
