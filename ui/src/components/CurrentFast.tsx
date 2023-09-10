@@ -35,12 +35,14 @@ export default function CurrentFast() {
         <span>{currentFast['fast-meta'].expectedduration} hours</span>
       </div>
       <div className="flex items-center space-x-2">
-        <span className="font-bold">Current Duration:</span>
+        <span className="font-bold">End:</span>
         <span>
-          {currentDurationHours}:{currentDurationMinutes}:
-          {currentDurationSeconds}
+          {format(
+            new Date(currentFast['fast-meta'].start).getTime() +
+              currentFast['fast-meta'].expectedduration * 60 * 60 * 1000,
+            'Pp'
+          )}
         </span>
-        <span>~{percentageComplete}% done</span>
       </div>
       <PrimaryButton
         onClick={() =>
