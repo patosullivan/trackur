@@ -39,8 +39,12 @@ export default function Fasts() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm();
+
+  const watchDuration = watch('duration');
+  const watchStart = watch('start');
 
   useEffect(() => {
     if (lastFast) {
@@ -106,6 +110,16 @@ export default function Fasts() {
                 {errors.duration && (
                   <span className="text-red-500">This field is required</span>
                 )}
+                <span className="text-gray-600 dark:text-gray-400">
+                  Expected end:{' '}
+                  {format(
+                    new Date(
+                      new Date(watchStart).getTime() +
+                        parseInt(watchDuration || '0', 10) * 60 * 60 * 1000
+                    ),
+                    'Pp'
+                  )}
+                </span>
               </div>
               <PrimaryButton isLoading={addFastIsLoading} type="submit">
                 Start
