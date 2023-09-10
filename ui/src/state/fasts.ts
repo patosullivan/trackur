@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import useReactQuerySubscription from '@/logic/useReactQuerySubscription';
+import {padTimeUnit} from '@/logic/utils';
 
 type FastMeta = {
   start: number;
@@ -50,9 +51,9 @@ export function useFasts(): { fasts: Fast[]; loading: boolean } {
 
 export function useCurrentFast(): {
   currentFast: Fast | undefined;
-  currentDurationHours: number;
-  currentDurationMinutes: number;
-  currentDurationSeconds: number;
+  currentDurationHours: string;
+  currentDurationMinutes: string;
+  currentDurationSeconds: string;
   percentageComplete: number;
 } {
   const [currentFast, setCurrentFast] = useState<Fast>();
@@ -102,9 +103,9 @@ export function useCurrentFast(): {
 
   return {
     currentFast,
-    currentDurationHours,
-    currentDurationMinutes,
-    currentDurationSeconds,
+    currentDurationHours: padTimeUnit(currentDurationHours),
+    currentDurationMinutes: padTimeUnit(currentDurationMinutes),
+    currentDurationSeconds: padTimeUnit(currentDurationSeconds),
     percentageComplete,
   };
 }

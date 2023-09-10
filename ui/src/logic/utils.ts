@@ -313,3 +313,5 @@ export const getLocalDateTimeString = (date: Date) => {
   const zoneDate = utcToZonedTime(date, timeZone);
   return formatTz(zoneDate, "yyyy-MM-dd'T'HH:mm", { timeZone });
 };
+
+export const padTimeUnit = (unit: number) => String(unit).padStart(2, '0');
