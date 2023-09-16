@@ -2,35 +2,25 @@ import CaretLeftIcon from '@/components/icons/CaretLeftIcon';
 import Layout from '@/components/Layout/Layout';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   useCurrentFast,
   useAddFastMutation,
   useFasts,
-  useDeleteFastMutation,
-  Fast,
   useLastFast,
 } from '@/state/fasts';
 import { format } from 'date-fns-tz';
-import classNames from 'classnames';
-import { intervalToDuration } from 'date-fns';
-import Dialog from '@/components/Dialog';
-import EditFast from '@/components/EditFast';
 import { getLocalDateTimeString } from '@/logic/utils';
 import CurrentFast from '@/components/CurrentFast';
 import PrimaryButton from '@/components/PrimaryButton';
-import DestructiveButton from '@/components/DestructiveButton';
-import SecondaryButton from '@/components/SecondaryButton';
+import PreviousFast from '@/components/PreviousFast';
 
 export default function Fasts() {
-  const [editFast, setEditFast] = useState<Fast | undefined>();
   const { fasts, loading } = useFasts();
   const { currentFast } = useCurrentFast();
   const { lastFast } = useLastFast();
   const { mutate: addFastMutation, isLoading: addFastIsLoading } =
     useAddFastMutation();
-  const { mutate: deleteFastMutation, isLoading: deleteFastIsLoading } =
-    useDeleteFastMutation();
   const now = new Date();
 
   const localDateTime = getLocalDateTimeString(now);
@@ -148,65 +138,7 @@ export default function Fasts() {
                   fasts
                     .filter((fast) => fast.id !== currentFast?.id)
                     .map((fast, i) => (
-                      <div
-                        key={fast.id}
-                        className={classNames('flex flex-col space-y-2', {
-                          'border-t border-gray-300 pt-2 dark:border-gray-700':
-                            i > 0,
-                        })}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <span className="font-bold">Start:</span>
-                          <span>
-                            {format(new Date(fast['fast-meta'].start), 'Pp')}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-bold">Expected Duration:</span>
-                          <span>{fast['fast-meta'].expectedduration}</span>
-                        </div>
-                        {fast['fast-meta'].end && (
-                          <>
-                            <span className="font-bold">End:</span>
-                            <span>
-                              {format(new Date(fast['fast-meta'].end), 'Pp')}
-                            </span>
-
-                            <span className="font-bold">Actual Duration:</span>
-                            <span>
-                              {
-                                intervalToDuration({
-                                  start: new Date(fast['fast-meta'].start),
-                                  end: new Date(fast['fast-meta'].end),
-                                }).hours
-                              }{' '}
-                              hours and{' '}
-                              {
-                                intervalToDuration({
-                                  start: new Date(fast['fast-meta'].start),
-                                  end: new Date(fast['fast-meta'].end),
-                                }).minutes
-                              }{' '}
-                              minutes
-                            </span>
-                            <div className="flex space-x-2">
-                              <DestructiveButton
-                                onClick={() =>
-                                  deleteFastMutation({ id: fast.id })
-                                }
-                                isLoading={deleteFastIsLoading}
-                              >
-                                Delete
-                              </DestructiveButton>
-                              <SecondaryButton
-                                onClick={() => setEditFast(fast)}
-                              >
-                                Edit
-                              </SecondaryButton>
-                            </div>
-                          </>
-                        )}
-                      </div>
+                      <PreviousFast key={fast.id} fast={fast} i={i} />
                     ))
                 )}
               </div>
@@ -214,13 +146,6 @@ export default function Fasts() {
           </>
         )}
       </div>
-      <Dialog
-        open={!!editFast}
-        onOpenChange={() => setEditFast(undefined)}
-        aria-labelledby="form-dialog-title"
-      >
-        <EditFast editFast={editFast} setEditFast={setEditFast} />
-      </Dialog>
     </Layout>
   );
 }
