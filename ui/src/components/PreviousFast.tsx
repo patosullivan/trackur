@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import classNames from 'classnames';
 import { intervalToDuration } from 'date-fns';
 import { format } from 'date-fns-tz';
@@ -9,11 +9,11 @@ import Dialog from '@/components/Dialog';
 import EditFast from '@/components/EditFast';
 
 interface PreviousFastProps {
-  fast: Fast;
+  item: Fast;
   i: number;
 }
 
-export default function PreviousFast({ fast, i }: PreviousFastProps) {
+export default function PreviousFast({ item: fast, i }: PreviousFastProps) {
   const [editFast, setEditFast] = useState<Fast | undefined>();
   const { mutate: deleteFastMutation, isLoading: deleteFastIsLoading } =
     useDeleteFastMutation();
